@@ -61,11 +61,105 @@ chat_text_qa_msgs = [
             "---------------------\n"
             "Given the context information and not prior knowledge, "
             "answer the question: {query_str}\n"
+            "Never start the sentence with any mention of the word context or based on the context information provided.\n"
         ),
     ),
 ]
 text_qa_template = ChatPromptTemplate(chat_text_qa_msgs)
 llm = OpenAI(model=model, temperature=0)
+
+
 query_engine = loaded_index.as_query_engine(streaming=False, text_qa_template=text_qa_template,)
-response = query_engine.query("Based on your knowledge of sleep, generate me 3 questions and answer them. They must server as a showcase of your abilities.")
-print(response)
+#response = query_engine.query("Based on your knowledge of sleep, give me a short introduction of your capabilities. 2 or 3 sentences")
+#print(response)
+
+from typing import Final
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, Bot
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes, CallbackContext, \
+    CallbackQueryHandler
+from telegram.constants import ChatAction
+import asyncio
+import os
+
+TOKEN: Final = os.environ["TELEGRAM_TOKEN"]
+BOT_USERNAME: Final = os.environ["BOT_USERNAME"]
+#Commands
+#Pozdrav ko nekdo pritisne Start:
+async def start_command(update:Update, context: ContextTypes.DEFAULT_TYPE)-> None:
+    """Inform user about what this bot can do"""
+    await update.message.reply_text(
+        "Hello! I am a sleep bot expert.\n"
+        "My commands are avaliable to you under the Menu button on the left side next to chat input.\n"
+        "You can ask me anything about sleep and I will try to provide you with the best answer.\n"
+    )
+
+# /help commanda (tu bomo listali vse komande)
+async def help_command(update:Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("Here are my commands: \n "
+    "/start - Starts the bot\n "
+    "/help - Provide help for our bot\n "
+    "/huberman - Redirect to Huberman Lab podcast page\n")
+
+async def huberman_command(update:Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("To listen to Huberman Lab podcast visit: https://hubermanlab.com/")
+
+def generate_response(user_message: str) -> str:
+    print("User wrote:", user_message)
+    #response = query_engine.query(user_message)
+    response = query_engine.query(user_message) 
+    response_str = str(response)
+    return response_str
+
+async def handle_message(update:Update, context: ContextTypes.DEFAULT_TYPE):
+    message_type: str = update.message.chat.type
+    text: str = update.message.text
+
+    print(f'User({update.message.chat.id}) in {message_type}: "{text}"')
+    
+    # Send typing action
+    await context.bot.send_chat_action(chat_id=update.message.chat.id, action=ChatAction.TYPING)
+
+    #preverimo ali je chat v groupi ali v 1:1 chatu
+    if message_type == 'group':
+        if BOT_USERNAME in text:
+            new_text: str = text.replace(BOT_USERNAME,'').strip()
+
+            response: str = generate_response(new_text) #  handle_response(new_text)
+        #Će ga nena taggađ v grupi se nebo odzval
+        else:
+            return
+    #To je pa za 1:1 chat
+    else:
+
+        response: str = generate_response(text) #Stara metoda: handle_response(text)
+    print('Bot:', response) #loganje
+
+    #Vrneš potem response userju
+    await update.message.reply_text(response)
+
+async def error(update:Update, context: ContextTypes.DEFAULT_TYPE):
+    print(f'Update {update} caused error {context.error}')
+
+print("Bot recieved commands")
+
+if __name__ == "__main__":
+    print("Starting bot...")
+    app = Application.builder().token(TOKEN).build()
+
+    #Commands
+    app.add_handler(CommandHandler('start', start_command)) #Specificiraš keri je start command pa  na kero metodo gre
+    app.add_handler(CommandHandler('help', help_command))
+    app.add_handler(CommandHandler('huberman', huberman_command))
+    #app.add_handler(CommandHandler('wh2c', wh2c_command))
+    #app.add_handler(CommandHandler('join', join_command))
+    #app.add_handler(CommandHandler('lightpaper', lightpaper_command))
+
+    #Messages
+    app.add_handler(MessageHandler(filters.TEXT,handle_message))
+
+    #Errors
+    app.add_error_handler(error)
+
+    #Preverjanje za nove update-e
+    print("Polling")
+    app.run_polling(poll_interval=3) #vsake 3 sekunde
