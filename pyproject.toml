@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "demochatbot"
+version = "0.1.0"
+description = "A demo chatbot for showcasing the capabilities of LLamaIndex and TelegramBot integration."
+authors = ["KricejJanezMartin <jkricej@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.10,<3.13"
+llama-index = "^0.10.32"
+pinecone-client = {version = "^3.0.2", extras = ["grpc"]}
+llama-index-vector-stores-pinecone = "^0.1.6"
+
+
+[tool.poetry.group.dev.dependencies]
+ipykernel = "^6.29.4"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
