@@ -61,6 +61,7 @@ chat_text_qa_msgs = [
             "---------------------\n"
             "Given the context information and not prior knowledge, "
             "answer the question: {query_str}\n"
+            "If unsure about {query_str}, respond with 'I don't know or ask to specify how does the question relate to the context of sleep.'\n"
             "Never start the sentence with any mention of the word context or based on the context information provided.\n"
         ),
     ),
@@ -75,8 +76,7 @@ query_engine = loaded_index.as_query_engine(streaming=False, text_qa_template=te
 
 from typing import Final
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, Bot
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes, CallbackContext, \
-    CallbackQueryHandler
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 from telegram.constants import ChatAction
 import asyncio
 import os
@@ -99,6 +99,12 @@ async def help_command(update:Update, context: ContextTypes.DEFAULT_TYPE):
     "/start - Starts the bot\n "
     "/help - Provide help for our bot\n "
     "/huberman - Redirect to Huberman Lab podcast page\n")
+async def exaple_command(update:Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("Here are some questions you can ask me: \n "
+                                    "What is the best way to sleep?\n "
+                                    "How to improve my sleep?\n "
+                                    "What is the best time to go to sleep?\n "
+                                    "How to improve my sleep quality?\n ")
 
 async def huberman_command(update:Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("To listen to Huberman Lab podcast visit: https://hubermanlab.com/")
@@ -110,9 +116,19 @@ def generate_response(user_message: str) -> str:
     response_str = str(response)
     return response_str
 
+from datetime import datetime
+import pytz
+# Store the start time of the bot
+bot_start_time = datetime.now(pytz.UTC)
+
 async def handle_message(update:Update, context: ContextTypes.DEFAULT_TYPE):
     message_type: str = update.message.chat.type
     text: str = update.message.text
+    message_time: datetime = update.message.date
+        # Check if the message was sent before the bot was started
+    if message_time < bot_start_time:
+        print("Ignoring message from before the bot was started")
+        return
 
     print(f'User({update.message.chat.id}) in {message_type}: "{text}"')
     
@@ -135,7 +151,7 @@ async def handle_message(update:Update, context: ContextTypes.DEFAULT_TYPE):
     print('Bot:', response) #loganje
 
     #Vrneš potem response userju
-    await update.message.reply_text(response)
+    await update.message.reply_text(response, parse_mode='Markdown')
 
 async def error(update:Update, context: ContextTypes.DEFAULT_TYPE):
     print(f'Update {update} caused error {context.error}')
