@@ -135,19 +135,19 @@ async def handle_message(update:Update, context: ContextTypes.DEFAULT_TYPE):
     # Send typing action
     await context.bot.send_chat_action(chat_id=update.message.chat.id, action=ChatAction.TYPING)
 
-    #preverimo ali je chat v groupi ali v 1:1 chatu
+    
     if message_type == 'group':
         if BOT_USERNAME in text:
             new_text: str = text.replace(BOT_USERNAME,'').strip()
 
             response: str = generate_response(new_text) #  handle_response(new_text)
-        #Će ga nena taggađ v grupi se nebo odzval
+        
         else:
             return
-    #To je pa za 1:1 chat
+    
     else:
 
-        response: str = generate_response(text) #Stara metoda: handle_response(text)
+        response: str = generate_response(text) #Old method: handle_response(text)
     print('Bot:', response) #loganje
 
     #Vrneš potem response userju

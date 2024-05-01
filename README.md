@@ -1,18 +1,11 @@
 ## Sleep Information Chatbot showcase
-This project is a chatbot designed to provide valuable information about sleep, based on the knowledge from Huberman Lab podcasts. 
-The chatbot is accessible via Telegram [link](https://t.me/SleepHbrChat_bot).
+This project is a custom ChatBot for Telegram, designed to provide context-based information. The bot is built on the Andrew Huberman Lab podcast, with all episodes indexed for sleep-related knowledge. This unique data source allows the bot to provide valuable insights.
 
-## Functionality
+The bot uses LLamaIndex for data processing and Pinecone VectorDB for storing the index, ensuring quick, accurate, and contextually relevant responses. The prompt template can be adjusted for better-designed answers, allowing the bot to be tailored to user needs.
 
-The core functionality of the chatbot is implemented using a `query_engine`:
+The bot is designed with deployment flexibility. It can be deployed on existing infrastructure or provided by us, offering clients the flexibility to choose the deployment method that best suits their needs. This project stands out due to its unique data source, intelligent response generation, high customization, and flexible deployment options.
 
-```python
-query_engine = loaded_index.as_query_engine(streaming=False, text_qa_template=text_qa_template,)
-```
-
-The `query_engine` is a key component of our chatbot. It is responsible for processing user queries and generating appropriate responses. The specifics of how this is achieved are part of our proprietary business logic.
-
-When a user sends a message to the chatbot, the `query_engine` processes the user's message and generates a response. The response is then sent back to the user via Telegram.
+You can access the chatbot on Telegram via this [link](https://t.me/SleepHbrChat_bot). Please note, it's currently operational primarily for demonstration purposes, to exhibit its capabilities to potential clients.
 
 ## Acknowledgements
 
@@ -20,5 +13,5 @@ We would like to thank the [LlamaIndexCourse](https://github.com/jbergant/LlamaI
 
 ## Potential Clients
 
-If you are a potential client looking at this project, we would love to hear from you. We are always open to new opportunities and collaborations. Please feel free to reach out to us on UpWork.
+If you are a potential client looking at this project, I would love to hear from you. I am always open to new opportunities and collaborations. Please feel free to reach out to me on UpWork.
 
