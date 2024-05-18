@@ -14,4 +14,8 @@ We would like to thank the [LlamaIndexCourse](https://github.com/jbergant/LlamaI
 ## Potential Clients
 
 If you are a potential client looking at this project, I would love to hear from you. I am always open to new opportunities and collaborations. Please feel free to reach out to me on UpWork.
-
+## Example of chat
+### Greeting
+![Huberman Telegram Chatbot](assets/image.png)
+### Example of answer
+![Example of chat](assets/chat_example.png)
